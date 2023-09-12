@@ -1,21 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-var sqlite3 = require('sqlite3');
-var db = new sqlite3.Database('server.db');
-
-db.run('CREATE TABLE IF NOT EXISTS groupes (serverOwnerName TEXT,serverOwner TEXT,name TEXT,password TEXT);');
-db.run('CREATE TABLE IF NOT EXISTS channel (serverID TEXT,groupName TEXT, channelTagId TEXT, ChannelId INTEGER);');
-db.run('CREATE TABLE IF NOT EXISTS server (serverID TEXT,groupName TEXT);');
-db.run('CREATE TABLE IF NOT EXISTS messages (MessageId TEXT, WebHookMessageId TEXT, WebHookId TEXT, GuildId TEXT, ChannelID TEXT);');
-db.run('CREATE TABLE IF NOT EXISTS threads (createdThreadId TEXT,threadId TEXT, forumId TEXT);');
+const { db } = require('../../db.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('group')
 		.setDescription('Commande regroupant diverses fonctionnalités pour gérer la synchronisation des serveurs.')
-		//.addStringOption(option =>
-		//	option.setName('action')
-		//		.setDescription("L'action à choisir: create, join, addchannel, leave, delete, info, edit, infochannels, list, listserver, lockchannel.")
-		//		.setRequired(true)),
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('create')
@@ -505,7 +494,7 @@ module.exports = {
 			break ;
 
 		case 'list':
-			let ListPublicGroup = 'SELECT * FROM groupes WHERE password=\'null\';';
+			let ListPublicGroup = 'SELECT * FROM groupes WHERE password IS NULL;';
 
 			db.all(ListPublicGroup, [], function(err, rows) {
 				if (err) {
@@ -513,8 +502,7 @@ module.exports = {
 				} 
 				console.log(rows);
 
-
-
+				interaction.reply({content: `Voici la liste des groupes publics:\n${rows.map(server => `> ${server.serverOwnerName}\n`)}`, ephemeral: true});
 			});
 			break;
 		}

@@ -6,7 +6,9 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "node .",
-		"dev": "nodemon ."
+		"dev": "nodemon .",
+		"lint": "eslint --fix --ext .js,.jsx .",
+		"update-commands": "node ./register_command.js"
 	},
 	"author": "Numb3rs",
 	"license": "ISC",
