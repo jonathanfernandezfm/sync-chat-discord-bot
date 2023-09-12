@@ -15,7 +15,7 @@ module.exports = (client) => {
 			const command = require(filePath);
 
 			if ('data' in command && 'execute' in command) {
-				client.slash.set(command.data.name, command);
+				client.commands.set(command.data.name, command);
 			} else {
 				logger.warn(`The command at ${file} is missing a required "data" or "execute" property.`);
 			}

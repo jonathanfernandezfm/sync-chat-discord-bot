@@ -1,5 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ChannelType } = require('discord.js');
 const { db } = require('../../db.js');
+const logger = require('../../utils/logger.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -34,6 +35,7 @@ module.exports = {
 					.setRequired(true))
 				.addChannelOption(chan => chan.setName('channel')
 					.setDescription('Channel a synchronisé')
+					.addChannelTypes(ChannelType.GuildText)
 					.setRequired(true))									
 				.addIntegerOption(id => id.setName('id')
 					.setDescription('Id of the channel')
@@ -99,7 +101,6 @@ module.exports = {
 					console.error(err.message);
 				} else {
 					// Process the matched rows
-					console.log(rows);
 					if (rows[0] !== undefined){
 						if (rows[0].name === name){
 							interaction.reply('Un groupe existe déja sous ce nom.'); 
@@ -114,7 +115,7 @@ module.exports = {
 								let joinGroup = 'INSERT INTO server (serverID, groupName) VALUES (?,?);';
 								let id_of_server =interaction.member.guild.id;
 								db.run(joinGroup, [String(id_of_server),name]);
-								console.log(`PUT ${id_of_server}, ${name}`);
+								logger.info(`PUT ${id_of_server}, ${name}`);
 
 					
 							}
@@ -127,11 +128,11 @@ module.exports = {
 			if (password!=undefined){
 				let groupes = 'INSERT INTO groupes (serverOwnerName, serverOwner, name, password) VALUES (?,?,?,?);';
 				db.run(groupes, [serverName,userName, name, password]);
-				console.log(`PUT ${serverName}, ${userName}, ${name}, ${password}`);
+				logger.info(`PUT ${serverName}, ${userName}, ${name}, ${password}`);
 			}else{
 				let groupes = 'INSERT INTO groupes (serverOwnerName, serverOwner, name) VALUES (?,?,?);';
 				db.run(groupes, [serverName,userName, name]);
-				console.log(`PUT ${serverName}, ${userName}, ${name}`);
+				logger.info(`PUT ${serverName}, ${userName}, ${name}`);
 			}
 
 			break;
@@ -174,7 +175,7 @@ module.exports = {
 								console.error(err.message);
 								return;
 							}
-							console.log(`PUT ${id_of_server}, ${nameOfGroup}`);
+							logger.info(`PUT ${id_of_server}, ${nameOfGroup}`);
 							interaction.reply(`Vous avez rejoint le groupe ${nameOfGroup}`);
 						});
 					} else {
@@ -192,7 +193,7 @@ module.exports = {
 				
 			const guildGet = client.guilds.cache.get(serverId);
 			const channelGet = guildGet.channels.cache.get(channel);
-			console.log(channelGet.constructor.name);
+			logger.info(channelGet.constructor.name);
 			if(channelGet.constructor.name !== 'TextChannel' && channelGet.constructor.name !== 'ForumChannel'){
 				interaction.reply('Veuillez choisir un channel valide.');
 				return;
@@ -206,7 +207,6 @@ module.exports = {
 					console.error(err.message);
 					return;
 				}
-				console.log(rows);
 				if (rows.length > 0) {
 					interaction.reply('Ce channel est déja synchronisé dans un groupe.');
 					mia = 1;
@@ -223,7 +223,6 @@ module.exports = {
 						console.error(err.message);
 					} else {
 						// Process the matched rows
-						console.log(rows);
 						let success;
 						rows.forEach(function(row){
 	
@@ -371,7 +370,6 @@ module.exports = {
 							console.error(err.message);
 						} else {
 							// Process the matched rows
-							console.log(rows);
 							if (rows[0] !== undefined){
 								if (rows[0].name === nameGrp){
 									return interaction.reply('Un groupe existe déja sous ce nom.'); 
@@ -430,7 +428,6 @@ module.exports = {
 						if (err) {
 							console.error(err.message);
 						} 
-						console.log(rows);
 						let nbrServerUsingGroup = rows.length;
 						let getChannelInfo = 'SELECT * FROM server WHERE groupName LIKE \'%\' || ? || \'%\';';
 
@@ -466,7 +463,6 @@ module.exports = {
 						if (err) {
 							console.error(err.message);
 						} 
-						console.log(rows);
 						let nbrGlobalServerUsingGroup = rows.length;
 						let getGlobalChannelInfo = 'SELECT * FROM server WHERE 1=1;';
 
@@ -495,12 +491,10 @@ module.exports = {
 
 		case 'list':
 			let ListPublicGroup = 'SELECT * FROM groupes WHERE password IS NULL;';
-
 			db.all(ListPublicGroup, [], function(err, rows) {
 				if (err) {
 					console.error(err.message);
 				} 
-				console.log(rows);
 
 				interaction.reply({content: `Voici la liste des groupes publics:\n${rows.map(server => `> ${server.serverOwnerName}\n`)}`, ephemeral: true});
 			});

@@ -7,7 +7,7 @@ initializeDB();
 
 client.commands = new Collection();
 
-['event_handler'].forEach((handler) => {
+['event_handler', 'command_handler'].forEach((handler) => {
 	require(`./handlers/${handler}`)(client);
 });
 

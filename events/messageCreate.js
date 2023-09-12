@@ -1,5 +1,6 @@
 const { Events } = require('discord.js');
 const { db } = require('../db.js');
+const logger = require('../utils/logger.js');
 
 let globalResponse = [];
 
@@ -207,7 +208,7 @@ async function sendMessageForumWebHook(guild_id, channel_id, message, name, thre
 module.exports = {
 	name: Events.MessageCreate,
 	async execute(message) {
-		console.log('MessageCreate Event');
+		logger.info('MessageCreate Event');
 
 		if (message.author.bot === true) return;
 
