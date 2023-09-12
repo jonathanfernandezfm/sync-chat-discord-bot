@@ -1,7 +1,7 @@
+require('dotenv').config(); 
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const config = require('./config.json');
 var sqlite3 = require('sqlite3');
 var db = new sqlite3.Database('server.db');
 
@@ -347,4 +347,4 @@ client.on(Events.InteractionCreate, async (interaction) => {
 	}
 });
 
-client.login(config.token);
+client.login(process.env.TOKEN);
